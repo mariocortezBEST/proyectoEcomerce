@@ -4,7 +4,7 @@ const mercadopago = require('mercadopago');
 
 // Configura MercadoPago con tu Access Token
 mercadopago.configure({
-    access_token: 'TEST-XXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    access_token: 'TEST-2390657157268363-091923-af621e8a24d1cb713d27572741a7813b-189212548'
 });
 
 router.post('/create_preference', (req, res) => {

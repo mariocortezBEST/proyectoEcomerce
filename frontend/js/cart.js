@@ -40,9 +40,48 @@ function removeFromCart(productId) {
     displayCart();
 }
 
-document.getElementById('checkout-btn').addEventListener('click', () => {
-    // Aquí iría la lógica para procesar el pago
-    alert('Gracias por tu compra!');
-    localStorage.removeItem('cart');
-    displayCart();
+document.getElementById('checkout-btn').addEventListener('click', async () => {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (cart.length === 0) {
+        alert('Tu carrito está vacío');
+        return;
+    }
+
+    // Calcular el total
+    let total = 0;
+    for (const productId of cart) {
+        const response = await fetch(`http://localhost:3000/api/products/${productId}`);
+        const product = await response.json();
+        total += product.price;
+    }
+
+    // Crear preferencia de pago
+    const response = await fetch('http://localhost:3000/api/payments/create_preference', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            description: 'Compra en Mi Tienda',
+            price: total,
+            quantity: 1,
+        }),
+    });
+
+    const preference = await response.json();
+
+    // Iniciar MercadoPago Checkout
+    const mp = new MercadoPago('TEST-bbc380d8-90cf-43fc-aa0d-12042d3dc135', {
+        locale: 'es-AR'
+    });
+
+    mp.checkout({
+        preference: {
+            id: preference.id
+        },
+        render: {
+            container: '.cho-container',
+            label: 'Pagar',
+        }
+    });
 });
